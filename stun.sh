@@ -69,5 +69,8 @@ if [[ "$1" == "create" ]]; then
 elif [[ "$1" == "destroy" ]]; then
   destroy
 else
+  echo "(s)plit (tun)nel, a wireguard split tunnel script"
+  echo
   echo "USAGE: split_tunnel create|destroy"
+  echo
 fi
