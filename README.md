@@ -23,7 +23,7 @@ exec - Run command in the split tunnel network namespace
 $ curl ifconfig.me
 -> Your VPN's ip :(
 
-# split_tunnel create
-# split_tunnel exec curl ifconfig.me
+# stun create
+# stun exec curl ifconfig.me
 -> Your residential ip :)
 ``` 
