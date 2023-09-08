@@ -4,7 +4,9 @@
 This is a simple bash script that utilizes Linux network namespaces to selectively split tunnel applications. 
 
 ## Usage
-Require root permissions
+- Require root permissions
+- You must also edit the script's `$IF` variable to the external interface you're using (i.e. `eth0`). I'm currently using `eno1`, and therefore, the script is set to use `eno1`
+
 ```
 split_tunnel create|destroy
 
