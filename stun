@@ -77,6 +77,12 @@ else
   echo
   echo "USAGE: "
   echo "split_tunnel create|destroy"
+  echo
+  echo "create - Must be run before using exec. Create a new network namespace for split tunneling, along with other stuff to make this all work." 
+  echo "destroy - Destroys the network namespace for split tunneling."
+  echo
   echo "split tunnel exec [COMMAND]"
+  echo
+  echo "exec - Run command in the split tunnel network namespace."
   echo
 fi
