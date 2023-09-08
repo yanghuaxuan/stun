@@ -62,6 +62,10 @@ if [[ "$1" == "--init" || "$1" == "-i" ]]; then
 elif [[ "$1" == "--destroy" || "$1" == "-d" ]]; then
   destroy
 elif [[ -n "$*" ]]; then
+  if [[ -z "$(ip netns list | grep -P $NS'(?= \(id: \d+\))')" ]]; then
+    echo "Cannot find stun namespace. (Did you initialize stun with --init ?)"
+    exit 1
+  fi
   ip netns exec "$NS" $@
 else
   echo "(s)plit (tun)nel, a wireguard split tunnel script"
