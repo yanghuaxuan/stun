@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
 NS="split"
-BR="br0"
 IF="eno1"
-BR_IP="10.1.1.1" BR_MASK="24"
 VETH_TO="veth0" VETH_FROM="veth1"
-VETH_IP="10.1.1.2" VETH_MASK="24"
+VETH_FROM_IP="10.1.1.2" VETH_FROM_MASK="24"
+VETH_TO_IP="10.1.1.1" VETH_TO_MASK="24"
 DNS="1.1.1.1"
 
 create() {
@@ -17,33 +16,27 @@ create() {
 
   # Create veth pairs (veth0, veth1)
   ip link add "$VETH_TO" type veth peer name "$VETH_FROM"
+  
+  ip addr add "$VETH_TO_IP/$VETH_TO_MASK" dev "$VETH_TO"
 
   ip link set "$VETH_TO" up
 
   # Moving $VETH_FROM to namespace
   ip link set "$VETH_FROM" netns "$NS"
 
-  # Create bridge
-  ip link add "$BR" type bridge
-
-  # Add $VETH_TO to bridge
-  ip link set "$VETH_TO" master "$BR"
-
   # Set IPs
-  ip addr add "$BR_IP/$BR_MASK" dev "$BR"
-  ip netns exec "$NS" ip addr add "$VETH_IP/$VETH_MASK" dev "$VETH_FROM"
+  ip netns exec "$NS" ip addr add "$VETH_FROM_IP/$VETH_FROM_MASK" dev "$VETH_FROM"
 
-  ip link set "$BR" up
   ip netns exec "$NS" ip link set "$VETH_FROM" up
-  ip -n "$NS" route add default dev veth1 via "$BR_IP"
+  ip -n "$NS" route add default dev "$VETH_FROM" via "$VETH_TO_IP"
 
   # Don't route to wg
-  ip rule add from "$VETH_IP" table main priority 99
+  ip rule add from "$VETH_FROM_IP" table main priority 99
 
   # IPTables NAT
-  iptables -t nat -A POSTROUTING -s "$BR_IP/$BR_MASK" -o "$IF" -j MASQUERADE
-  iptables -A FORWARD -i "$IF" -o "$BR" -j ACCEPT
-  iptables -A FORWARD -o "$IF" -i "$BR" -j ACCEPT
+  iptables -t nat -A POSTROUTING -s "$VETH_TO_IP/$VETH_TO_MASK" -o "$IF" -j MASQUERADE
+  iptables -A FORWARD -i "$IF" -o "$VETH_TO" -j ACCEPT
+  iptables -A FORWARD -o "$IF" -i "$VETH_TO" -j ACCEPT
 
   mkdir -p /etc/netns/"$NS"
   echo "nameserver $DNS" > /etc/netns/"$NS"/resolv.conf
@@ -53,14 +46,13 @@ create() {
 destroy() {
   rm -Rf /etc/netns/"$NS"
 
-  iptables -t nat -D POSTROUTING -s "$BR_IP/$BR_MASK" -o "$IF" -j MASQUERADE
-  iptables -D FORWARD -i "$IF" -o "$BR" -j ACCEPT
-  iptables -D FORWARD -o "$IF" -i "$BR" -j ACCEPT
+  iptables -t nat -D POSTROUTING -s "$VETH_TO_IP/$VETH_TO_MASK" -o "$IF" -j MASQUERADE
+  iptables -D FORWARD -i "$IF" -o "$VETH_TO" -j ACCEPT
+  iptables -D FORWARD -o "$IF" -i "$VETH_TO" -j ACCEPT
 
-  ip rule delete from "$VETH_IP" table main priority 99
+  ip rule delete from "$VETH_FROM_IP" table main priority 99
 
   ip link delete "$VETH_TO"
-  ip link delete "$BR"
 
   ip netns delete "$NS"
 }
