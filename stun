@@ -11,10 +11,8 @@ create() {
   # Create namespace
   ip netns add "$NS"
 
-  # Up lo
   ip netns exec "$NS" ip link set lo up
 
-  # Create veth pairs (veth0, veth1)
   ip link add "$VETH_TO" type veth peer name "$VETH_FROM"
   
   ip addr add "$VETH_TO_IP/$VETH_TO_MASK" dev "$VETH_TO"
@@ -24,7 +22,6 @@ create() {
   # Moving $VETH_FROM to namespace
   ip link set "$VETH_FROM" netns "$NS"
 
-  # Set IPs
   ip netns exec "$NS" ip addr add "$VETH_FROM_IP/$VETH_FROM_MASK" dev "$VETH_FROM"
 
   ip netns exec "$NS" ip link set "$VETH_FROM" up
@@ -33,14 +30,14 @@ create() {
   # Don't route to wg
   ip rule add from "$VETH_FROM_IP" table main priority 99
 
-  # IPTables NAT
+  # NAT
   iptables -t nat -A POSTROUTING -s "$VETH_TO_IP/$VETH_TO_MASK" -o "$IF" -j MASQUERADE
   iptables -A FORWARD -i "$IF" -o "$VETH_TO" -j ACCEPT
   iptables -A FORWARD -o "$IF" -i "$VETH_TO" -j ACCEPT
 
+  # Custom DNS for namespace in case Wireguard specific DNS config
   mkdir -p /etc/netns/"$NS"
   echo "nameserver $DNS" > /etc/netns/"$NS"/resolv.conf
-  cp /etc/hosts /etc/netns/"$NS"/hosts
 }
 
 destroy() {
