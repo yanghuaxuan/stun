@@ -6,6 +6,7 @@ IF="eno1"
 BR_IP="10.1.1.1" BR_MASK="24"
 VETH_TO="veth0" VETH_FROM="veth1"
 VETH_IP="10.1.1.2" VETH_MASK="24"
+DNS="1.1.1.1"
 
 create() {
   # Create namespace
@@ -45,7 +46,7 @@ create() {
   iptables -A FORWARD -o "$IF" -i "$BR" -j ACCEPT
 
   mkdir -p /etc/netns/"$NS"
-  echo 'nameserver 1.1.1.1' > /etc/netns/"$NS"/resolv.conf
+  echo "nameserver $DNS" > /etc/netns/"$NS"/resolv.conf
   cp /etc/hosts /etc/netns/"$NS"/hosts
 }
 
