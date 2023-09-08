@@ -57,24 +57,23 @@ destroy() {
   ip netns delete "$NS"
 }
 
-if [[ "$1" == "create" ]]; then 
+if [[ "$1" == "--init" || "$1" == "-i" ]]; then 
   create
-elif [[ "$1" == "destroy" ]]; then
+elif [[ "$1" == "--destroy" || "$1" == "-d" ]]; then
   destroy
-elif [[ "$1" == "exec" ]]; then
-  shift
-  ip netns exec "$NS" $*
+elif [[ -n "$*" ]]; then
+  ip netns exec "$NS" $@
 else
   echo "(s)plit (tun)nel, a wireguard split tunnel script"
   echo
   echo "USAGE: "
-  echo "stun create|destroy"
+  echo "stun --init -i | --destroy -d"
   echo
-  echo "create - Must be run before using exec. Create a new network namespace for split tunneling, along with other stuff to make this all work." 
-  echo "destroy - Destroys the network namespace for split tunneling."
+  echo "--init | -i	Must be run before using exec. Create a new network namespace for split tunneling, along with other stuff to make this all work." 
+  echo "--destroy | -d	Destroys the network namespace for split tunneling."
   echo
-  echo "stun exec [COMMAND]"
+  echo "stun COMMAND"
   echo
-  echo "exec - Run command in the split tunnel network namespace."
+  echo "Run command in the split tunnel network namespace."
   echo
 fi
