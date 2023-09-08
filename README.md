@@ -16,3 +16,8 @@ split tunnel exec [COMMAND]
 exec - Run command in the split tunnel network namespace
 ```
 
+### Example
+```
+# split_tunnel create
+# split_tunnel exec curl ifconfig.me
+``` 
