@@ -69,9 +69,14 @@ if [[ "$1" == "create" ]]; then
   create
 elif [[ "$1" == "destroy" ]]; then
   destroy
+elif [[ "$1" == "exec" ]]; then
+  shift
+  ip netns exec "$NS" $*
 else
   echo "(s)plit (tun)nel, a wireguard split tunnel script"
   echo
-  echo "USAGE: split_tunnel create|destroy"
+  echo "USAGE: "
+  echo "split_tunnel create|destroy"
+  echo "split tunnel exec [COMMAND]"
   echo
 fi
