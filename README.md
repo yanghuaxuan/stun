@@ -8,14 +8,14 @@ This is a simple bash script that utilizes Linux network namespaces to selective
 - You must also edit the script's `$IF` variable to the external interface you're using (i.e. `eth0`). I'm currently using `eno1`, and therefore, the script is set to use `eno1`
 
 ```
-stun create|destroy
+stun --init -i | --destroy -d
 
-create - Must be run before using exec. Create a new network namespace for split tunneling, along with other stuff to make this all work.
-destroy - Destroys the network namespace for split tunneling.
+--init | -i	Must be run before using exec. Create a new network namespace for split tunneling, along with other stuff to make this all work.
+--destroy | -d	Destroys the network namespace for split tunneling.
 
-stun exec [COMMAND]
+stun COMMAND
 
-exec - Run command in the split tunnel network namespace
+Run command in the split tunnel network namespace.
 ```
 
 ### Example
